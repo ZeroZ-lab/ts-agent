@@ -8,8 +8,14 @@ description: Append concise change summaries to AGENTS.md when features, behavio
 ## Quick start
 
 1. Draft a one-line summary of the change.
-2. Run `scripts/append_agents_md.py "<summary>"`.
-3. Confirm the new entry appears under the auto-append section.
+2. Run `python3 scripts/append_agents_md.py --kind change "<summary>"`.
+3. Confirm the new entry appears under the auto-append section in `AGENTS.md`.
+
+To record an error you hit (for later avoidance):
+
+1. Draft a one-line “现象 / 原因 / 修复”.
+2. Run `python3 scripts/append_agents_md.py --kind error "<summary>"`.
+3. Confirm the new entry appears in `AGENTS/ERRORS.md`.
 
 ## Workflow
 
@@ -28,11 +34,12 @@ See `references/summary_format.md` for the exact line format and examples.
 
 - Locate the nearest `AGENTS.md` by walking up from the current directory.
 - Ensure the `## 变更摘要（自动追加）` section exists.
-- Append a dated summary entry under that section.
+- Append a dated entry:
+  - `--kind change`: under `## 变更摘要（自动追加）` in `AGENTS.md`
+  - `--kind error`: to `AGENTS/ERRORS.md`
 
 ## Guardrails
 
 - Do not include secrets or API keys.
 - Keep summaries to one line.
 - Use the repository’s primary language (中文).
-

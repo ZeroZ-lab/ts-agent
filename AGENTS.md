@@ -14,7 +14,7 @@
 - 开发模式：**BDD（行为驱动）**，先写 Given/When/Then 测试，再实现。
 - MVP 内置：
   - Tools：`echo` / `math` / `clock`（纯内存工具）
-  - Models：`RuleBasedModel` / `ScriptedModel` / `OpenAIResponsesModel`（真实 LLM）
+  - Models：`RuleBasedModel` / `ScriptedModel` / `OpenAIResponsesModel` / `OpenAIChatCompletionsModel`
 
 ## 快速命令
 
@@ -36,7 +36,18 @@
   - `packages/cli/src/main.ts`：CLI 入口（`tui` / `run`）
   - `packages/cli/src/config.ts`：读取 `ts-agent.config.ts`
   - `packages/cli/src/tui/`：TUI（`state.ts` reducer / `render.ts` / `controller.ts`）
-- 文档：`docs/`（架构、BDD、TUI、Tools、Models）
+- 文档：`docs/`（架构、BDD、TUI、Tools、Models、Config、Debugging、Roadmap）
+
+## 文档索引（docs/）
+
+- `docs/architecture.md`：核心数据流与模块边界（messages/tools/runner）
+- `docs/bdd.md`：BDD 约定与测试写法（Given/When/Then）
+- `docs/models.md`：模型适配（rule/scripted/openai：responses/chat_completions）
+- `docs/tools.md`：内置工具与新增工具流程
+- `docs/tui.md`：TUI 设计（state/reducer/render/controller）与可测试优先
+- `docs/config.md`：`ts-agent.config.ts` / `.env` / Provider 兼容与示例
+- `docs/debugging.md`：常见报错（405/404/400 等）与排查清单
+- `docs/roadmap-claude-code.md`：迈向 Claude Code 的能力模块与里程碑
 
 ## 核心架构（你需要理解的 3 件事）
 
@@ -159,3 +170,13 @@ export OPENAI_API_KEY="..."
 - MVP 不引入文件系统写入、shell 执行、网络抓取等高风险工具。
 - OpenAI Provider 的网络调用只在用户显式配置 key 后才会发生；测试使用 fake fetch，不打真实网络。
 
+## 变更摘要（自动追加）
+
+> 由 `skills/agents-md-updater` 自动维护：每次新增/修改功能后，追加一条一句话摘要（带日期）。
+
+- 2026-02-05：新增文档索引与配置/排障/roadmap 文档（AGENTS.md, docs/*）
+## 错误复盘（自动追加）
+
+> 由 `skills/agents-md-updater` 自动维护：记录踩坑与修复，避免重复犯错。
+
+@AGENTS/ERRORS.md

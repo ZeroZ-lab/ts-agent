@@ -16,6 +16,13 @@
 
 Core 内置 `OpenAIResponsesModel`（支持 tool calling）。
 
+## OpenAI Chat Completions（OpenAI-compatible）
+
+当 Provider 不支持 `/responses`（常见），可以使用 `chat/completions`：
+
+- Core 内置：`OpenAIChatCompletionsModel`
+- 走：`POST {baseUrl}{apiPath}/chat/completions`
+
 ### 配置方式
 
 1) 设置环境变量（不要写进代码/仓库）：
@@ -28,7 +35,13 @@ export OPENAI_API_KEY="..."
 
 ```ts
 export default {
-  model: { kind: "openai", model: "gpt-4.1" },
+  model: {
+    kind: "openai",
+    model: "gpt-4.1",
+    api: "responses", // 或 "chat_completions"
+    baseUrl: "https://api.openai.com",
+    apiPath: "/v1"
+  },
   tools: { builtins: true },
   runner: { maxToolIters: 8, emitTrace: true },
   tui: { transcriptMaxLines: 400 }
@@ -40,4 +53,3 @@ export default {
 ```bash
 bun run ts-agent tui
 ```
-
