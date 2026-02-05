@@ -1,0 +1,4 @@
+interface:
+  display_name: "AGENTS.md Updater"
+  short_description: "Append change summaries to AGENTS.md"
+  default_prompt: "Use $agents-md-updater to append a concise change summary to AGENTS.md for new or modified features."
