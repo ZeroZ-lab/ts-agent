@@ -1,0 +1,15 @@
+{
+  "name": "ts-agent",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "ts-agent": "bun --bun packages/cli/src/main.ts",
+    "dev": "bun run ts-agent tui"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0"
+  }
+}
