@@ -1,23 +1,25 @@
-export type ChatRole = "system" | "user" | "assistant" | "tool";
+// Chat 消息类型定义
 
-export type SystemMessage = { role: "system"; content: string };
-export type UserMessage = { role: "user"; content: string };
-export type AssistantMessage = { role: "assistant"; content: string };
-export type AssistantToolCallsMessage = {
-  role: "assistant";
-  content: string;
-  toolCalls: Array<{ id: string; name: string; args: Record<string, unknown> }>;
-};
-export type ToolMessage = {
-  role: "tool";
-  toolName: string;
-  toolCallId: string;
-  content: string;
-};
+export type ChatRole = "system" | "user" | "assistant" | "tool"; // 导出类型定义
 
-export type ChatMessage =
-  | SystemMessage
-  | UserMessage
-  | AssistantMessage
-  | AssistantToolCallsMessage
-  | ToolMessage;
+export type SystemMessage = { role: "system"; content: string }; // 导出类型定义
+export type UserMessage = { role: "user"; content: string }; // 导出类型定义
+export type AssistantMessage = { role: "assistant"; content: string }; // 导出类型定义
+export type AssistantToolCallsMessage = { // 导出类型定义
+  role: "assistant"; // 执行语句
+  content: string; // 执行语句
+  toolCalls: Array<{ id: string; name: string; args: Record<string, unknown> }>; // 执行语句
+}; // 结束代码块
+export type ToolMessage = { // 导出类型定义
+  role: "tool"; // 执行语句
+  toolName: string; // 执行语句
+  toolCallId: string; // 执行语句
+  content: string; // 执行语句
+}; // 结束代码块
+
+export type ChatMessage = // 导出类型定义
+  | SystemMessage // 执行语句
+  | UserMessage // 执行语句
+  | AssistantMessage // 执行语句
+  | AssistantToolCallsMessage // 执行语句
+  | ToolMessage; // 执行语句

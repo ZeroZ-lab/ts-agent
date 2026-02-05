@@ -1,149 +1,151 @@
-import type { ChatMessage } from "./types";
-import type { Model } from "../model/types";
-import type { Tool } from "../tool/types";
-import type { RunnerEvent } from "../events/types";
+// ChatSession：单回合执行循环与事件流
 
-export type ChatSessionOptions = {
-  model: Model;
-  tools: Tool[];
-  runner?: { maxToolIters?: number; emitTrace?: boolean };
-  toolContext?: { now?: () => Date };
-};
+import type { ChatMessage } from "./types"; // 导入类型依赖
+import type { Model } from "../model/types"; // 导入类型依赖
+import type { Tool } from "../tool/types"; // 导入类型依赖
+import type { RunnerEvent } from "../events/types"; // 导入类型依赖
 
-export type TurnResult =
-  | {
-      ok: true;
-      turnId: string;
-      messages: ChatMessage[];
-      events: RunnerEvent[];
-      assistantMessage: string;
-    }
-  | {
-      ok: false;
-      turnId: string;
-      messages: ChatMessage[];
-      events: RunnerEvent[];
-      error: { message: string };
-    };
+export type ChatSessionOptions = { // 导出类型定义
+  model: Model; // 执行语句
+  tools: Tool[]; // 执行语句
+  runner?: { maxToolIters?: number; emitTrace?: boolean }; // 执行语句
+  toolContext?: { now?: () => Date }; // 执行语句
+}; // 结束代码块
 
-export class ChatSession {
-  #model: Model;
-  #tools: Tool[];
-  #messages: ChatMessage[];
-  #maxToolIters: number;
-  #emitTrace: boolean;
-  #toolNow?: () => Date;
+export type TurnResult = // 导出类型定义
+  | { // 执行语句
+      ok: true; // 执行语句
+      turnId: string; // 执行语句
+      messages: ChatMessage[]; // 执行语句
+      events: RunnerEvent[]; // 执行语句
+      assistantMessage: string; // 执行语句
+    } // 结束代码块
+  | { // 执行语句
+      ok: false; // 执行语句
+      turnId: string; // 执行语句
+      messages: ChatMessage[]; // 执行语句
+      events: RunnerEvent[]; // 执行语句
+      error: { message: string }; // 执行语句
+    }; // 结束代码块
 
-  constructor(options: ChatSessionOptions) {
-    this.#model = options.model;
-    this.#tools = options.tools;
-    this.#messages = [];
-    this.#maxToolIters = options.runner?.maxToolIters ?? 8;
-    this.#emitTrace = options.runner?.emitTrace ?? true;
-    this.#toolNow = options.toolContext?.now;
-  }
+export class ChatSession { // 导出类定义
+  #model: Model; // 执行语句
+  #tools: Tool[]; // 执行语句
+  #messages: ChatMessage[]; // 执行语句
+  #maxToolIters: number; // 执行语句
+  #emitTrace: boolean; // 执行语句
+  #toolNow?: () => Date; // 执行语句
 
-  get messages(): ChatMessage[] {
-    return [...this.#messages];
-  }
+  constructor(options: ChatSessionOptions) { // 定义构造函数
+    this.#model = options.model; // 执行语句
+    this.#tools = options.tools; // 执行语句
+    this.#messages = []; // 执行语句
+    this.#maxToolIters = options.runner?.maxToolIters ?? 8; // 执行语句
+    this.#emitTrace = options.runner?.emitTrace ?? true; // 执行语句
+    this.#toolNow = options.toolContext?.now; // 执行语句
+  } // 结束代码块
 
-  async runTurn(
-    userMessage: string,
-    opts?: { onEvent?: (e: RunnerEvent) => void; signal?: AbortSignal }
-  ): Promise<TurnResult> {
-    const turnId = crypto.randomUUID();
-    const events: RunnerEvent[] = [];
-    const toolsByName = new Map(this.#tools.map((t) => [t.spec.name, t] as const));
-    const toolSpecs = this.#tools.map((t) => t.spec);
+  get messages(): ChatMessage[] { // 执行语句
+    return [...this.#messages]; // 返回结果
+  } // 结束代码块
 
-    const emit = (e: RunnerEvent) => {
-      if (!this.#emitTrace) return;
-      events.push(e);
-      opts?.onEvent?.(e);
-    };
+  async runTurn( // 执行语句
+    userMessage: string, // 执行语句
+    opts?: { onEvent?: (e: RunnerEvent) => void; signal?: AbortSignal } // 执行语句
+  ): Promise<TurnResult> { // 执行语句
+    const turnId = crypto.randomUUID(); // 声明常量
+    const events: RunnerEvent[] = []; // 声明常量
+    const toolsByName = new Map(this.#tools.map((t) => [t.spec.name, t] as const)); // 声明常量
+    const toolSpecs = this.#tools.map((t) => t.spec); // 声明常量
 
-    const at = () => Date.now();
+    const emit = (e: RunnerEvent) => { // 声明常量
+      if (!this.#emitTrace) return; // 条件判断
+      events.push(e); // 执行语句
+      opts?.onEvent?.(e); // 执行语句
+    }; // 结束代码块
 
-    try {
-      this.#messages.push({ role: "user", content: userMessage });
-      emit({ type: "turn_started", turnId, userMessage, at: at() });
+    const at = () => Date.now(); // 声明常量
 
-      let toolCallsExecuted = 0;
-      while (true) {
-        emit({ type: "model_started", turnId, at: at() });
-        const response = await this.#model.generate({
-          messages: this.#messages,
-          tools: toolSpecs,
-          signal: opts?.signal
-        });
-        emit({ type: "model_completed", turnId, response, at: at() });
+    try { // 开始异常捕获
+      this.#messages.push({ role: "user", content: userMessage }); // 执行语句
+      emit({ type: "turn_started", turnId, userMessage, at: at() }); // 执行语句
 
-        if (response.toolCalls && response.toolCalls.length > 0) {
-          this.#messages.push({
-            role: "assistant",
-            content: response.content ?? "",
-            toolCalls: response.toolCalls
-          });
-          for (const toolCall of response.toolCalls) {
-            toolCallsExecuted++;
-            if (toolCallsExecuted > this.#maxToolIters) {
-              throw new Error(`maxToolIters exceeded (${this.#maxToolIters})`);
-            }
+      let toolCallsExecuted = 0; // 声明变量
+      while (true) { // 循环条件
+        emit({ type: "model_started", turnId, at: at() }); // 执行语句
+        const response = await this.#model.generate({ // 声明常量
+          messages: this.#messages, // 执行语句
+          tools: toolSpecs, // 执行语句
+          signal: opts?.signal // 执行语句
+        }); // 结束代码块
+        emit({ type: "model_completed", turnId, response, at: at() }); // 执行语句
 
-            const tool = toolsByName.get(toolCall.name);
-            if (!tool) {
-              throw new Error(`Tool not found: ${toolCall.name}`);
-            }
+        if (response.toolCalls && response.toolCalls.length > 0) { // 条件判断
+          this.#messages.push({ // 执行语句
+            role: "assistant", // 执行语句
+            content: response.content ?? "", // 执行语句
+            toolCalls: response.toolCalls // 执行语句
+          }); // 结束代码块
+          for (const toolCall of response.toolCalls) { // 循环遍历
+            toolCallsExecuted++; // 执行语句
+            if (toolCallsExecuted > this.#maxToolIters) { // 条件判断
+              throw new Error(`maxToolIters exceeded (${this.#maxToolIters})`); // 抛出错误
+            } // 结束代码块
 
-            emit({ type: "tool_started", turnId, toolCall, at: at() });
-            try {
-              const result = await tool.run(toolCall.args, {
-                signal: opts?.signal,
-                now: this.#toolNow
-              });
-              emit({
-                type: "tool_completed",
-                turnId,
-                toolCallId: toolCall.id,
-                toolName: toolCall.name,
-                result,
-                at: at()
-              });
-              this.#messages.push({
-                role: "tool",
-                toolName: toolCall.name,
-                toolCallId: toolCall.id,
-                content: JSON.stringify(result)
-              });
-            } catch (err) {
-              const message = err instanceof Error ? err.message : String(err);
-              emit({
-                type: "tool_failed",
-                turnId,
-                toolCallId: toolCall.id,
-                toolName: toolCall.name,
-                error: { message },
-                at: at()
-              });
-              throw new Error(`Tool failed (${toolCall.name}): ${message}`);
-            }
-          }
-          continue;
-        }
+            const tool = toolsByName.get(toolCall.name); // 声明常量
+            if (!tool) { // 条件判断
+              throw new Error(`Tool not found: ${toolCall.name}`); // 抛出错误
+            } // 结束代码块
 
-        const assistantMessage = response.content ?? "";
-        this.#messages.push({ role: "assistant", content: assistantMessage });
-        emit({ type: "turn_completed", turnId, assistantMessage, at: at() });
-        return { ok: true, turnId, messages: this.messages, events, assistantMessage };
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      emit({ type: "turn_failed", turnId, error: { message }, at: at() });
-      return { ok: false, turnId, messages: this.messages, events, error: { message } };
-    }
-  }
-}
+            emit({ type: "tool_started", turnId, toolCall, at: at() }); // 执行语句
+            try { // 开始异常捕获
+              const result = await tool.run(toolCall.args, { // 声明常量
+                signal: opts?.signal, // 执行语句
+                now: this.#toolNow // 执行语句
+              }); // 结束代码块
+              emit({ // 执行语句
+                type: "tool_completed", // 执行语句
+                turnId, // 执行语句
+                toolCallId: toolCall.id, // 执行语句
+                toolName: toolCall.name, // 执行语句
+                result, // 执行语句
+                at: at() // 执行语句
+              }); // 结束代码块
+              this.#messages.push({ // 执行语句
+                role: "tool", // 执行语句
+                toolName: toolCall.name, // 执行语句
+                toolCallId: toolCall.id, // 执行语句
+                content: JSON.stringify(result) // 执行语句
+              }); // 结束代码块
+            } catch (err) { // 执行语句
+              const message = err instanceof Error ? err.message : String(err); // 声明常量
+              emit({ // 执行语句
+                type: "tool_failed", // 执行语句
+                turnId, // 执行语句
+                toolCallId: toolCall.id, // 执行语句
+                toolName: toolCall.name, // 执行语句
+                error: { message }, // 执行语句
+                at: at() // 执行语句
+              }); // 结束代码块
+              throw new Error(`Tool failed (${toolCall.name}): ${message}`); // 抛出错误
+            } // 结束代码块
+          } // 结束代码块
+          continue; // 继续下一轮
+        } // 结束代码块
 
-export function createChatSession(options: ChatSessionOptions): ChatSession {
-  return new ChatSession(options);
-}
+        const assistantMessage = response.content ?? ""; // 声明常量
+        this.#messages.push({ role: "assistant", content: assistantMessage }); // 执行语句
+        emit({ type: "turn_completed", turnId, assistantMessage, at: at() }); // 执行语句
+        return { ok: true, turnId, messages: this.messages, events, assistantMessage }; // 返回结果
+      } // 结束代码块
+    } catch (err) { // 执行语句
+      const message = err instanceof Error ? err.message : String(err); // 声明常量
+      emit({ type: "turn_failed", turnId, error: { message }, at: at() }); // 执行语句
+      return { ok: false, turnId, messages: this.messages, events, error: { message } }; // 返回结果
+    } // 结束代码块
+  } // 结束代码块
+} // 结束代码块
+
+export function createChatSession(options: ChatSessionOptions): ChatSession { // 导出函数定义
+  return new ChatSession(options); // 返回结果
+} // 结束代码块
