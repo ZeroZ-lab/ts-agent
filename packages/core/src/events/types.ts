@@ -1,55 +1,57 @@
-import type { ModelResponse, ToolCall } from "../model/types";
+// Runner 事件类型定义
 
-export type RunnerEvent =
-  | {
-      type: "turn_started";
-      turnId: string;
-      userMessage: string;
-      at: number;
-    }
-  | {
-      type: "model_started";
-      turnId: string;
-      at: number;
-    }
-  | {
-      type: "model_completed";
-      turnId: string;
-      response: ModelResponse;
-      at: number;
-    }
-  | {
-      type: "tool_started";
-      turnId: string;
-      toolCall: ToolCall;
-      at: number;
-    }
-  | {
-      type: "tool_completed";
-      turnId: string;
-      toolCallId: string;
-      toolName: string;
-      result: unknown;
-      at: number;
-    }
-  | {
-      type: "tool_failed";
-      turnId: string;
-      toolCallId: string;
-      toolName: string;
-      error: { message: string };
-      at: number;
-    }
-  | {
-      type: "turn_completed";
-      turnId: string;
-      assistantMessage: string;
-      at: number;
-    }
-  | {
-      type: "turn_failed";
-      turnId: string;
-      error: { message: string };
-      at: number;
-    };
+import type { ModelResponse, ToolCall } from "../model/types"; // 导入类型依赖
+
+export type RunnerEvent = // 导出类型定义
+  | { // 执行语句
+      type: "turn_started"; // 执行语句
+      turnId: string; // 执行语句
+      userMessage: string; // 执行语句
+      at: number; // 执行语句
+    } // 结束代码块
+  | { // 执行语句
+      type: "model_started"; // 执行语句
+      turnId: string; // 执行语句
+      at: number; // 执行语句
+    } // 结束代码块
+  | { // 执行语句
+      type: "model_completed"; // 执行语句
+      turnId: string; // 执行语句
+      response: ModelResponse; // 执行语句
+      at: number; // 执行语句
+    } // 结束代码块
+  | { // 执行语句
+      type: "tool_started"; // 执行语句
+      turnId: string; // 执行语句
+      toolCall: ToolCall; // 执行语句
+      at: number; // 执行语句
+    } // 结束代码块
+  | { // 执行语句
+      type: "tool_completed"; // 执行语句
+      turnId: string; // 执行语句
+      toolCallId: string; // 执行语句
+      toolName: string; // 执行语句
+      result: unknown; // 执行语句
+      at: number; // 执行语句
+    } // 结束代码块
+  | { // 执行语句
+      type: "tool_failed"; // 执行语句
+      turnId: string; // 执行语句
+      toolCallId: string; // 执行语句
+      toolName: string; // 执行语句
+      error: { message: string }; // 执行语句
+      at: number; // 执行语句
+    } // 结束代码块
+  | { // 执行语句
+      type: "turn_completed"; // 执行语句
+      turnId: string; // 执行语句
+      assistantMessage: string; // 执行语句
+      at: number; // 执行语句
+    } // 结束代码块
+  | { // 执行语句
+      type: "turn_failed"; // 执行语句
+      turnId: string; // 执行语句
+      error: { message: string }; // 执行语句
+      at: number; // 执行语句
+    }; // 结束代码块
 
